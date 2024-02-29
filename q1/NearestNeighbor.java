@@ -1,4 +1,4 @@
-package q1;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -10,18 +10,18 @@ public class NearestNeighbor {
 
     public NearestNeighbor() {
 
-        numberRecords = 0;      
-        numberAttributes = 0;
-        numberClasses = 0;
-        numberNeighbors = 0; 
+        numberOfRecords = 0;      
+        numberOfAttributes = 0;
+        numberOfClasses = 0;
+        numberOfNeighbors = 0; 
         records = null;     
 
     }
 
-    private int numberRecords;               //number of training records   
-    private int numberAttributes;            //number of attributes   
-    private int numberClasses;               //number of classes
-    private int numberNeighbors;             //number of nearest neighbors
+    private int numberOfRecords;               //number of training records   
+    private int numberOfAttributes;            //number of attributes   
+    private int numberOfClasses;               //number of classes
+    private int numberOfNeighbors;             //number of nearest neighbors
     private ArrayList<Record> records;       //list of training records
 
 
@@ -33,21 +33,21 @@ public class NearestNeighbor {
          Scanner inFile = new Scanner(new File(trainingFile));
 
          //read number of records, attributes, classes
-         numberRecords = inFile.nextInt();
-         numberAttributes = inFile.nextInt();
-         numberClasses = inFile.nextInt();
+         numberOfRecords = inFile.nextInt();
+         numberOfAttributes = inFile.nextInt();
+         numberOfClasses = inFile.nextInt();
 
          //create empty list of records
          records = new ArrayList<Record>();        
 
          //for each record
-         for (int i = 0; i < numberRecords; i++)    
+         for (int i = 0; i < numberOfRecords; i++)    
          {
              //create attribute array
-             double[] attributeArray = new double[numberAttributes]; 
+             double[] attributeArray = new double[numberOfAttributes]; 
                                      
              //read attribute values
-             for (int j = 0; j < numberAttributes; j++)   
+             for (int j = 0; j < numberOfAttributes; j++)   
                   attributeArray[j] = inFile.nextDouble();  
  
              //read class name
