@@ -22,7 +22,7 @@ public class NearestNeighbor {
     private int numberOfAttributes;            //number of attributes   
     private int numberOfClasses;               //number of classes
     private int numberOfNeighbors;             //number of nearest neighbors
-    private ArrayList<Record> records;       //list of training records
+    private ArrayList<Record> records;         //list of training records
 
 
 
