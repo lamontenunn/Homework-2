@@ -1,7 +1,6 @@
 80
 5
 4
-
 720 87 77 male single         low
 776 47 64 male married        low
 651 47 34 female single       high
@@ -82,4 +81,3 @@
 539 85 72 male married        high
 555 77 50 female married      undetermined  
 616 68 44 male single         high
-
