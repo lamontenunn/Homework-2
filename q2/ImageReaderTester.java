@@ -1,34 +1,4 @@
 
-/**
- * Nearest Neighbor Classifier for Loan Applicant Classification
- * 
- * This program classifies loan applicants into risk categories (high risk, medium risk, low risk, 
- * and undetermined) based on their attributes such as credit score, income, age, sex, and marital status. 
- * It uses the k-Nearest Neighbors (k-NN) algorithm for classification and includes functionality for 
- * normalizing the input data, performing leave-one-out cross-validation to estimate model performance, 
- * and classifying new data.
- * 
- * The program is structured into two main classes: NearestNeighbor, which implements the core k-NN algorithm,
- * and Driver, which handles data preprocessing, interaction with the user for file input/output, and 
- * orchestrates the training and testing process.
- * 
- * ## Features
- * - Normalizes training and test data to ensure consistent value ranges.
- * - Utilizes the leave-one-out method for model validation to calculate the error rate.
- * - Allows classification of new test data based on trained model.
-
- * Compile the program using a Java compile javac Driver.java`.
- * Run the program  `java Driver`.
- * 
- * 
- * 
- * ## Author
- * LaMonte Nunn
- * COSC 461
- * HOMEWORK 2
- * 
-
-*/
 
 import java.io.File;
 import java.io.FileWriter;
@@ -36,7 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class Driver {
+public class ImageReaderTester {
 
     private static final int NEIGHBORS = 8;
 
@@ -60,7 +30,7 @@ public class Driver {
         normalizeTrainingData(trainingDataIn, "normalizedTrainingData");
         normalizeTestData(testData, "normalizedTestData");
 
-        NearestNeighbor n = new NearestNeighbor();
+        ImageReader n = new ImageReader();
 
         n.loadTrainingData("normalizedTrainingData");
         n.setParamaters(NEIGHBORS);
@@ -157,6 +127,7 @@ public class Driver {
         for (int i = 0; i < numberOfRecords; i++) {
             int[] sexMaritalClassArr = new int[4];
 
+
             // credit score
             int creditScore = in.nextInt();
             double creditNumber = normalizeData(creditScore, 500, 900);
@@ -189,10 +160,14 @@ public class Driver {
             else if (maritalStatus.equals("divorced"))
                 sexMaritalClassArr[3] = 1;
 
-            for (int num : sexMaritalClassArr)
+            
+                
+                for (int num : sexMaritalClassArr)
                 output.print(num + " ");
+                
+                output.println();
 
-            output.println();
+               
 
         }
 
@@ -210,57 +185,45 @@ public class Driver {
 
     }
 
-    private static void classifyTestData(String testDataFile, String outputFile, NearestNeighbor classifier)
-            throws IOException {
+    private static void classifyTestData(String testDataFile, String outputFile, ImageReader classifier) throws IOException {
         Scanner in = new Scanner(new File("normalizedTestData"));
         PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+    
 
-        // reads in num of records
+        // reads in num of records 
         int numberOfTestRecords = in.nextInt();
-        in.nextLine();
-
+        in.nextLine(); 
+    
         for (int i = 0; i < numberOfTestRecords; i++) {
-            if (!in.hasNextLine())
-                break;
+            if (!in.hasNextLine()) break; 
+    
 
             String line = in.nextLine();
             // creates string array
             String[] parts = line.split("\\s+");
-
+    
             // Parse continuous and categorical attributes from the line
             double[] continuousAttributes = new double[3];
             for (int j = 0; j < 3; j++) {
                 continuousAttributes[j] = Double.parseDouble(parts[j]);
             }
-
+    
             int[] categoricalAttributes = new int[4];
             for (int j = 0; j < 4; j++) {
                 categoricalAttributes[j] = Integer.parseInt(parts[j + 3]);
             }
-
+    
             // Classify the record
             int predictedClass = classifier.classify(continuousAttributes, categoricalAttributes);
-
+    
             // Write the predicted class to the output file
-            // Here you can format the output as needed; this example just writes the
-            // predicted class index
-
-            out.println(convertClass(predictedClass));
+            // Here you can format the output as needed; this example just writes the predicted class index
+            out.println(predictedClass);
         }
-
+    
         in.close();
         out.close();
     }
-
-    private static String convertClass(int predictedClass) {
-        if (predictedClass == 0)
-            return "low";
-        else if (predictedClass == 1)
-            return "medium";
-        else if (predictedClass == 2)
-            return "high";
-        else
-            return "undetermind";
-    }
+    
 
 }
