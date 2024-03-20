@@ -1,231 +1,168 @@
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class NearestNeighbor {
 
-    private class Record {
-        private double[] continuousAttributes; // Continuous attributes of the record
-        private int[] categoricalAttributes; // Categorical attributes of the record, one-hot encoded
-        private int className; // Class of the record
+    private static final int NUM_ATTRIBUTES = 5;
 
-        // Constructor of Record
-        private Record(double[] continuousAttributes, int[] categoricalAttributes, int className) {
-            this.continuousAttributes = continuousAttributes;
-            this.categoricalAttributes = categoricalAttributes;
-            this.className = className; // Set class
+    private class Record {
+        private double[] attributes;
+        private int classLabel;
+
+        private Record(double[] attributes, int classLabel) {
+            this.attributes = attributes;
+            this.classLabel = classLabel;
         }
     }
 
+    private int numRecords;
+    private int numAttributes;
+    private int numClasses;
+    private int numNeighbors;
+    private ArrayList<Record> trainingSet;
+
     public NearestNeighbor() {
-
-        numberOfRecords = 0;
-        numberOfAttributes = 0;
-        numberOfClasses = 0;
-        numberOfNeighbors = 0;
-        records = null;
-
+        numRecords = 0;
+        numAttributes = 0;
+        numClasses = 0;
+        numNeighbors = 0;
+        trainingSet = null;
     }
-
-    private int numberOfRecords; // number of training records
-    private int numberOfAttributes; // number of attributes
-    private int numberOfClasses; // number of classes
-    private int numberOfNeighbors; // number of nearest neighbors
-    private ArrayList<Record> records; // list of training records
 
     public void loadTrainingData(String trainingFile) throws IOException {
         Scanner inFile = new Scanner(new File(trainingFile));
 
-        // Read number of records, attributes, classes
-        numberOfRecords = inFile.nextInt();
-        numberOfAttributes = inFile.nextInt();
-        numberOfClasses = inFile.nextInt();
+        numRecords = inFile.nextInt();
+        numAttributes = inFile.nextInt();
+        numClasses = inFile.nextInt();
 
-        // Create empty list of records
-        records = new ArrayList<Record>();
+        trainingSet = new ArrayList<>();
         inFile.nextLine();
 
         while (inFile.hasNextLine()) {
             String line = inFile.nextLine();
             String[] parts = line.split("\\s+");
 
-            // first 3 attributes are continuous and already normalized
-            double[] continuousAttributes = new double[3];
-            for (int i = 0; i < 3; i++) {
-                continuousAttributes[i] = Double.parseDouble(parts[i]);
+            if (parts.length != NUM_ATTRIBUTES + 1) {
+                throw new IllegalArgumentException("Invalid training data format.");
             }
 
-            //  the next 4 attributes are categorical (one-hot encoded)
-            int[] categoricalAttributes = new int[4];
-            for (int i = 0; i < 4; i++) {
-                categoricalAttributes[i] = Integer.parseInt(parts[i + 3]);
+            double[] attributes = new double[NUM_ATTRIBUTES];
+            for (int i = 0; i < NUM_ATTRIBUTES; i++) {
+                attributes[i] = Double.parseDouble(parts[i]);
             }
 
-            // The last part is the class
-            int className = Integer.parseInt(parts[parts.length - 1]);
+            int classLabel = Integer.parseInt(parts[NUM_ATTRIBUTES]);
 
-            // Create and add the record
-            records.add(new Record(continuousAttributes, categoricalAttributes, className));
+            trainingSet.add(new Record(attributes, classLabel));
         }
 
         inFile.close();
     }
 
-
-    // method sets num of Neighbors
-    void setParamaters(int num) {
-        numberOfNeighbors = num;
-
+    public void setParameters(int numNeighbors) {
+        this.numNeighbors = numNeighbors;
     }
 
-    /*************************************************************************/
-
-    // Method finds the nearest neighbors
-    private void nearestNeighbor(double[] distance, int[] id) {
-        // sort distances and choose nearest neighbors
-        for (int i = 0; i < numberOfNeighbors; i++)
-            for (int j = i; j < numberOfRecords; j++)
-                if (distance[i] > distance[j]) {
-                    double tempDistance = distance[i];
-                    distance[i] = distance[j];
-                    distance[j] = tempDistance;
-
-                    int tempId = id[i];
-                    id[i] = id[j];
-                    id[j] = tempId;
+    private void findNearestNeighbors(double[] distances, int[] indices) {
+        for (int i = 0; i < numNeighbors; i++) {
+            for (int j = i + 1; j < distances.length; j++) {
+                if (distances[i] > distances[j]) {
+                    double tempDistance = distances[i];
+                    distances[i] = distances[j];
+                    distances[j] = tempDistance;
+    
+                    int tempIndex = indices[i];
+                    indices[i] = indices[j];
+                    indices[j] = tempIndex;
                 }
+            }
+        }
     }
 
-    /*************************************************************************/
+    private int findMajorityClass(int[] indices) {
+        int[] classCounts = new int[numClasses];
 
-    // Method finds the majority class of nearest neighbors
-    private int majority(int[] id) {
-        double[] frequency = new double[numberOfClasses];
-
-        // class frequencies are zero initially
-        for (int i = 0; i < numberOfClasses; i++)
-            frequency[i] = 0;
-
-        // each neighbor contributes 1 to its class
-        for (int i = 0; i < numberOfNeighbors; i++)
-            frequency[records.get(id[i]).className] += 1;
-
-        // find majority class
-        int maxIndex = 0;
-        for (int i = 0; i < numberOfClasses; i++)
-            if (frequency[i] > frequency[maxIndex])
-                maxIndex = i;
-
-        return maxIndex;
-    }
-
-    /*************************************************************************/
-
-    private double distance(Record r1, Record r2) {
-
-        // finds Eucudian distance
-        double continuousDistance = 0;
-        for (int i = 0; i < r1.continuousAttributes.length; i++) {
-            double diff = r1.continuousAttributes[i] - r2.continuousAttributes[i];
-            continuousDistance += diff * diff;
+        for (int i = 0; i < numNeighbors; i++) {
+            classCounts[trainingSet.get(indices[i]).classLabel]++;
         }
 
-
-        // finds hamming distance / binary distance
-        int hammingDistance = 0;
-        for (int i = 0; i < r1.categoricalAttributes.length; i++) {
-            if (r1.categoricalAttributes[i] != r2.categoricalAttributes[i]) {
-                hammingDistance++;
+        int maxCount = 0;
+        int majorityClass = 0;
+        for (int i = 0; i < numClasses; i++) {
+            if (classCounts[i] > maxCount) {
+                maxCount = classCounts[i];
+                majorityClass = i;
             }
         }
 
-        // Combine distances 
-        return Math.sqrt(continuousDistance + hammingDistance);
+        return majorityClass;
+    }
+
+    private double calculateDistance(Record record1, Record record2) {
+        double distance = 0;
+        for (int i = 0; i < numAttributes; i++) {
+            double diff = record1.attributes[i] - record2.attributes[i];
+            distance += diff * diff;
+        }
+        return Math.sqrt(distance);
     }
 
     public void leaveOneOutClassification() {
-        double error = 0;
+        int numErrors = 0;
 
-        for (int i = 0; i < records.size(); i++) {
-            // Isolate the test record
-            Record testRecord = records.get(i);
-            double[] testContinuousAttributes = testRecord.continuousAttributes;
-            int[] testCategoricalAttributes = testRecord.categoricalAttributes;
-            int actualClass = testRecord.className;
+        for (int i = 0; i < numRecords; i++) {
+            Record testRecord = trainingSet.get(i);
+            double[] attributes = testRecord.attributes;
+            int actualClass = testRecord.classLabel;
 
-            // Classify the test record using the modified training set
-            int predictedClass = classifyExclude(testContinuousAttributes, testCategoricalAttributes, i);
+            int predictedClass = classifyExcludingRecord(attributes, i);
 
-            // Check if the classification was incorrect
             if (predictedClass != actualClass) {
-                error+=1;
+                numErrors++;
             }
         }
 
-        // Calculate and print the accuracy or error rate
-
-        double rate = error / records.size() * 100;
-        System.out.println("Error Rate: " + rate + "%");
+        double errorRate = (double) numErrors / numRecords * 100;
+        System.out.println("Error Rate: " + errorRate + "%");
     }
 
-    private int classifyExclude(double[] continuousAttributes, int[] categoricalAttributes, int excludeIndex) {
-        double[] distanceArray = new double[numberOfRecords];
-        int[] id = new int[numberOfRecords];
+    private int classifyExcludingRecord(double[] attributes, int excludeIndex) {
+        double[] distances = new double[numRecords - 1];
+        int[] indices = new int[numRecords - 1];
 
-        int dIndex = 0;
-        for (int i = 0; i < numberOfRecords; i++) {
-            // if param from leave-one-out method is the excluded index then skip
-            if (i == excludeIndex)
-                continue; // Skip the excluded record
+        int index = 0;
+        for (int i = 0; i < numRecords; i++) {
+            if (i == excludeIndex) {
+                continue;
+            }
 
-            Record comparisonRecord = records.get(i);
-            double dist = distance(
-                    new Record(continuousAttributes, categoricalAttributes, 0), // Temporary Record for comparison
-                    comparisonRecord);
-
-            distanceArray[dIndex] = dist;
-            id[dIndex] = i;
-            dIndex++;
+            Record comparisonRecord = trainingSet.get(i);
+            distances[index] = calculateDistance(new Record(attributes, 0), comparisonRecord);
+            indices[index] = i;
+            index++;
         }
 
-        // Find nearest neighbors
-        nearestNeighbor(distanceArray, id);
+        findNearestNeighbors(distances, indices);
 
-        // Determine majority class
-        return majority(id);
+        return findMajorityClass(indices);
     }
 
+    public int classify(double[] attributes) {
+        double[] distances = new double[numRecords];
+        int[] indices = new int[numRecords];
 
-    int classify(double[] continuousAttributes, int[] categoricalAttributes) {
-        double[] distanceArray = new double[numberOfRecords];
-        int[] id = new int[numberOfRecords];
-
-        int dIndex = 0;
-        for (int i = 0; i < numberOfRecords; i++) {
-
-            Record comparisonRecord = records.get(i);
-            double dist = distance(
-                    new Record(continuousAttributes, categoricalAttributes, 0), // Temporary Record for comparison
-                    comparisonRecord);
-
-            distanceArray[dIndex] = dist;
-            id[dIndex] = i;
-            dIndex++;
+        for (int i = 0; i < numRecords; i++) {
+            Record comparisonRecord = trainingSet.get(i);
+            distances[i] = calculateDistance(new Record(attributes, 0), comparisonRecord);
+            indices[i] = i;
         }
 
-        // Find nearest neighbors
-        nearestNeighbor(distanceArray, id);
+        findNearestNeighbors(distances, indices);
 
-        // Determine majority class
-        return majority(id);
+        return findMajorityClass(indices);
     }
-
-
-
-
-
-    
-
 }

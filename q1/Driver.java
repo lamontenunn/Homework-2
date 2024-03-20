@@ -38,7 +38,7 @@ import java.util.Scanner;
 
 public class Driver {
 
-    private static final int NEIGHBORS = 8;
+    private static final int NEIGHBORS = 6;
 
     public static void main(String[] args) throws IOException {
 
@@ -63,7 +63,7 @@ public class Driver {
         NearestNeighbor n = new NearestNeighbor();
 
         n.loadTrainingData("normalizedTrainingData");
-        n.setParamaters(NEIGHBORS);
+        n.setParameters(NEIGHBORS);
 
         // Call leave one out which also displays the validation rate
         n.leaveOneOutClassification();
@@ -86,7 +86,7 @@ public class Driver {
         for (int i = 0; i < numberOfRecords; i++) {
 
             int risk = 0;
-            int[] sexMaritalClassArr = new int[4];
+            double[] sexMaritalClassArr = new double[2];
 
             // credit score
             int creditScore = in.nextInt();
@@ -107,18 +107,18 @@ public class Driver {
 
             String sex = in.next();
             if (sex.equals("male"))
-                sexMaritalClassArr[0] = 0;
+                sexMaritalClassArr[0] = 0.0;
             else
-                sexMaritalClassArr[0] = 1;
+                sexMaritalClassArr[0] = 1.0;
 
             // marital status
             String maritalStatus = in.next();
             if (maritalStatus.equals("single"))
-                sexMaritalClassArr[1] = 1;
+                sexMaritalClassArr[1] = 0.0;
             else if (maritalStatus.equals("married"))
-                sexMaritalClassArr[2] = 1;
+                sexMaritalClassArr[1] = 0.5;
             else if (maritalStatus.equals("divorced"))
-                sexMaritalClassArr[3] = 1;
+                sexMaritalClassArr[1] = 1.0;
 
             // class
             String riskClass = in.next();
@@ -131,7 +131,7 @@ public class Driver {
             else if (riskClass.equals("undetermined"))
                 risk = 3;
 
-            for (int num : sexMaritalClassArr)
+            for (double num : sexMaritalClassArr)
                 out.print(num + " ");
 
             out.print(risk);
@@ -155,7 +155,7 @@ public class Driver {
         output.println();
 
         for (int i = 0; i < numberOfRecords; i++) {
-            int[] sexMaritalClassArr = new int[4];
+            double[] sexMaritalClassArr = new double[2];
 
             // credit score
             int creditScore = in.nextInt();
@@ -183,13 +183,13 @@ public class Driver {
             // marital status
             String maritalStatus = in.next();
             if (maritalStatus.equals("single"))
-                sexMaritalClassArr[1] = 1;
+                sexMaritalClassArr[1] = 0.0;
             else if (maritalStatus.equals("married"))
-                sexMaritalClassArr[2] = 1;
+                sexMaritalClassArr[1] = 0.5;
             else if (maritalStatus.equals("divorced"))
-                sexMaritalClassArr[3] = 1;
+                sexMaritalClassArr[1] = 1.0;
 
-            for (int num : sexMaritalClassArr)
+            for (double num : sexMaritalClassArr)
                 output.print(num + " ");
 
             output.println();
@@ -227,23 +227,13 @@ public class Driver {
             // creates string array
             String[] parts = line.split("\\s+");
 
-            // Parse continuous and categorical attributes from the line
-            double[] continuousAttributes = new double[3];
-            for (int j = 0; j < 3; j++) {
-                continuousAttributes[j] = Double.parseDouble(parts[j]);
-            }
-
-            int[] categoricalAttributes = new int[4];
-            for (int j = 0; j < 4; j++) {
-                categoricalAttributes[j] = Integer.parseInt(parts[j + 3]);
+            double[] attributes = new double[5];
+            for (int j = 0; j < 5; j++) {
+                attributes[j] = Double.parseDouble(parts[j]);
             }
 
             // Classify the record
-            int predictedClass = classifier.classify(continuousAttributes, categoricalAttributes);
-
-            // Write the predicted class to the output file
-            // Here you can format the output as needed; this example just writes the
-            // predicted class index
+            int predictedClass = classifier.classify(attributes);
 
             out.println(convertClass(predictedClass));
         }
