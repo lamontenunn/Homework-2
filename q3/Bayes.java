@@ -44,43 +44,59 @@ public class Bayes {
     /*************************************************************************/
 
     // Method loads data from training file
-    public void loadTrainingData(String trainingFile) throws IOException {
-        Scanner inFile = new Scanner(new File(trainingFile));
+   // Method loads data from training file
+public void loadTrainingData(String trainingFile) throws IOException {
+    Scanner inFile = new Scanner(new File(trainingFile));
 
-        // read number of records, attributes, classes
-        numberRecords = inFile.nextInt();
-        numberAttributes = inFile.nextInt();
-        numberClasses = inFile.nextInt();
+    // read number of records, attributes, classes
+    numberRecords = inFile.nextInt();
+    numberAttributes = inFile.nextInt();
+    numberClasses = inFile.nextInt();
 
-        // read number of attribute values
-        attributeValues = new int[numberAttributes];
-        for (int i = 0; i < numberAttributes; i++)
-            attributeValues[i] = inFile.nextInt();
+    // read number of attribute values
+    attributeValues = new int[numberAttributes];
+    attributeValues[0] = 3; // experience (0.0, 0.5, 1.0)
+    attributeValues[1] = 2; // language (0.0, 1.0)
+    attributeValues[2] = 3; // YoE (0.0, 0.5, 1.0)
+    attributeValues[3] = 2; // major (0.0, 1.0)
+    attributeValues[4] = 4; // grade (0.0, 0.25, 0.75, 1.0)
 
-        // list of records
-        records = new ArrayList<Record>();
+    // list of records
+    records = new ArrayList<Record>();
 
-        // read each record
-        for (int i = 0; i < numberRecords; i++) {
-            // create attribute array
-            int[] attributeArray = new int[numberAttributes];
+    // read each record
+    for (int i = 0; i < numberRecords; i++) {
+        // create attribute array
+        int[] attributeArray = new int[numberAttributes];
 
-            // read attributes
-            for (int j = 0; j < numberAttributes; j++)
-                attributeArray[j] = inFile.nextInt();
+        // read attributes
+        double experience = inFile.nextDouble();
+        attributeArray[0] = experience == 0.0 ? 1 : (experience == 0.5 ? 2 : 3);
 
-            // read class
-            int className = inFile.nextInt();
+        double language = inFile.nextDouble();
+        attributeArray[1] = language == 0.0 ? 1 : 2;
 
-            // create record
-            Record record = new Record(attributeArray, className);
+        double YoE = inFile.nextDouble();
+        attributeArray[2] = YoE == 0.0 ? 1 : (YoE == 0.5 ? 2 : 3);
 
-            // add record to list of records
-            records.add(record);
-        }
+        double major = inFile.nextDouble();
+        attributeArray[3] = major == 0.0 ? 1 : 2;
 
-        inFile.close();
+        double grade = inFile.nextDouble();
+        attributeArray[4] = grade == 0.0 ? 1 : (grade == 0.25 ? 2 : (grade == 0.75 ? 3 : 4));
+
+        // read class
+        int className = inFile.nextInt();
+
+        // create record
+        Record record = new Record(attributeArray, className);
+
+        // add record to list of records
+        records.add(record);
     }
+
+    inFile.close();
+}
 
     /*************************************************************************/
 
@@ -99,20 +115,17 @@ public class Bayes {
     private void computeClassTable() {
         classTable = new double[numberClasses];
 
-
-
-
         // initialize class frequencies
         for (int i = 0; i < numberClasses; i++)
             classTable[i] = 0;
 
-        // compute class 
-        
-                // 4 3 3 4
+        // compute class
+
+        // 4 3 3 4
         for (int i = 0; i < numberRecords; i++)
             classTable[records.get(i).className - 1] += 1;
 
-                    // 4/14 3/14 3/14 4/14
+        // 4/14 3/14 3/14 4/14
 
         // normalize class frequencies
         for (int i = 0; i < numberClasses; i++)
@@ -162,7 +175,8 @@ public class Bayes {
                 // j == current attribute being considered
                 double value = (table[attribute - 1][i][j] + 1) / (classTable[i] * numberRecords + attributeValues);
 
-                // classTable [i] represents the probibility of the current class | i is the current class (we have 4 total so were gonna loop through 4 times)
+                // classTable [i] represents the probibility of the current class | i is the
+                // current class (we have 4 total so were gonna loop through 4 times)
                 table[attribute - 1][i][j] = value;
             }
     }
@@ -228,14 +242,17 @@ public class Bayes {
             int[] attributeArray = new int[numberAttributes];
 
             // read attributes
-            for (int j = 0; j < numberAttributes; j++)
-                attributeArray[j] = inFile.nextInt();
+            attributeArray[0] = (int) (inFile.nextDouble() * 2) + 1; // experience
+            attributeArray[1] = inFile.nextDouble() == 0.0 ? 1 : 2; // language
+            attributeArray[2] = (int) (inFile.nextDouble() * 2) + 1; // YoE
+            attributeArray[3] = inFile.nextDouble() == 0.0 ? 1 : 2; // major
+            attributeArray[4] = (int) (inFile.nextDouble() * 4) + 1; // grade
 
             // find class of attributes
             int className = classify(attributeArray);
 
             // write class name
-            outFile.println(className);
+            outFile.println(className == 1 ? "interview" : "no");
         }
 
         inFile.close();
@@ -244,42 +261,32 @@ public class Bayes {
 
     /*************************************************************************/
 
-    // Method validates classifier using validation file and displays
-    // error rate
-    public void validate(String validationFile) throws IOException {
-        Scanner inFile = new Scanner(new File(validationFile));
 
-        // read number of records
-        int numberRecords = inFile.nextInt();
 
-        // initially zero errors
+    public void leaveOneOut() {
         int numberErrors = 0;
-
-        // for each record
+    
         for (int i = 0; i < numberRecords; i++) {
-            // create attribute array
-            int[] attributeArray = new int[numberAttributes];
-
-            // read attributes
-            for (int j = 0; j < numberAttributes; j++)
-                attributeArray[j] = inFile.nextInt();
-
-            // read actual class
-            int actualClass = inFile.nextInt();
-
-            // find class predicted by classifier
-            int predictedClass = classify(attributeArray);
-
-            // error if predicted and actual classes do not match
-            if (predictedClass != actualClass)
-                numberErrors += 1;
+            // Remove the current record from the training set
+            Record removedRecord = records.remove(i);
+    
+            // Train the Bayes classifier using the remaining records
+            computeProbability();
+    
+            // Classify the removed record using the trained classifier
+            int predictedClass = classify(removedRecord.attributes);
+    
+            // Compare the predicted class with the actual class
+            if (predictedClass != removedRecord.className)
+                numberErrors++;
+    
+            // Add the removed record back to the training set
+            records.add(i, removedRecord);
         }
-
-        // find and print error rate
-        double errorRate = 100.0 * numberErrors / numberRecords;
-        System.out.println("validation error: " + errorRate);
-
-        inFile.close();
+    
+        // Calculate and print the error rate
+        double errorRate = (double) numberErrors / numberRecords * 100;
+        System.out.println("Leave-one-out error rate: " + errorRate + "%");
     }
 
     /*************************************************************************/
