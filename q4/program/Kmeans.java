@@ -4,6 +4,17 @@ import java.util.*;
 //K-means clustering class
 public class Kmeans
 {
+
+    class Record {
+        double[] attributes;
+        int clusterLabel;
+    
+        public Record(double[] attributes, int clusterLabel) {
+            this.attributes = attributes;
+            this.clusterLabel = clusterLabel;
+        }
+    }
+
     /*************************************************************************/
 
     private int numberRecords;            //number of records  
@@ -247,24 +258,33 @@ public class Kmeans
     /*************************************************************************/
 
     //Method writes records and their clusters to output file
-    public void display(String outputFile) throws IOException
-    {
-         PrintWriter outFile = new PrintWriter(new FileWriter(outputFile));
+public void display(String outputFile) throws IOException {
+    PrintWriter outFile = new PrintWriter(new FileWriter(outputFile));
 
-         //for each record
-         for (int i = 0; i < numberRecords; i++)
-         {
-             //write attributes of record
-             for (int j = 0; j < numberAttributes; j++)
-                  outFile.print(records[i][j] + " ");
+    // Create a list of Record objects
+    List<Record> recordList = new ArrayList<>();
 
-             //write cluster label
-             outFile.println(clusters[i]+1);
-         }
-
-         outFile.close();
+    // Add records and their cluster labels to the list
+    for (int i = 0; i < numberRecords; i++) {
+        recordList.add(new Record(records[i], clusters[i]));
     }
 
+    // Sort the list based on the cluster label
+    Collections.sort(recordList, Comparator.comparingInt(r -> r.clusterLabel));
+
+    // Write the sorted records to the output file
+    for (Record record : recordList) {
+        // Write attributes of record
+        for (double attribute : record.attributes) {
+            outFile.print(attribute + " ");
+        }
+
+        // Write cluster label
+        outFile.println(record.clusterLabel + 1);
+    }
+
+    outFile.close();
+}
 
     public double calculateSSE() {
         double sse = 0;
