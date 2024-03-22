@@ -1,3 +1,28 @@
+package program;
+/**
+ * This program recognizes images of digits using the nearest neighbor algorithm.
+ * Specifically, it classifies images as either one or zero based on their 256 bits.
+ * 
+ * The program:
+ * - Uses an appropriate number of nearest neighbors and a distance measure (Hamming distance)
+ * - Leave-one-out method for validation
+ * - Reads training data and test data from user-specified files
+ * - Writes the classified data to a user-specified output file
+ * - Displays the validation error on the screen
+ *
+ * The training file should contain at least twenty 16x16 bit images, labeled as ones or zeros.
+ * The test file should contain at least five 16x16 bit images to be classified.
+ *
+ * Usage:
+ * 1. Run the program
+ * 2. Enter the name of the training data file when prompted
+ * 3. Enter the name of the test data file when prompted
+ * 4. Enter the name of the output file for the classified data when prompted
+ * 5. The program will display the validation error and write the classifications to the output file
+ */
+
+
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

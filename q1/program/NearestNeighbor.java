@@ -1,3 +1,4 @@
+package program;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -115,7 +116,7 @@ public class NearestNeighbor {
         int numErrors = 0;
 
         for (int i = 0; i < numRecords; i++) {
-            Record testRecord = trainingSet.get(i);
+            Record testRecord = trainingSet.get(i); // leave this one out
             double[] attributes = testRecord.attributes;
             int actualClass = testRecord.classLabel;
 
@@ -131,6 +132,7 @@ public class NearestNeighbor {
     }
 
     private int classifyExcludingRecord(double[] attributes, int excludeIndex) {
+        
         double[] distances = new double[numRecords - 1];
         int[] indices = new int[numRecords - 1];
 

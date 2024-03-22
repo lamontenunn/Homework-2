@@ -1,0 +1,13 @@
+low
+low
+undetermind
+high
+medium
+high
+high
+undetermind
+medium
+medium
+
+Error Rate: 27.500000000000004%
+Number of nearest neighbors: 6

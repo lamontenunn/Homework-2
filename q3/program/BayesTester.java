@@ -1,3 +1,4 @@
+package program;
 import java.io.*;
 import java.util.*;
 import java.util.Scanner;
@@ -65,23 +66,23 @@ public class BayesTester
         out.println();
     
         for (int i = 0; i < numberOfRecords; i++) {
-            int experience = in.nextInt();
-            out.print((experience == 0 ? 0.0 : experience == 1 ? 0.5 : 1.0) + " ");
+            int numOfLang = in.nextInt();
+            out.print((numOfLang == 0 ? 1 : numOfLang == 1 ? 2 : 3) + " ");
     
             String language = in.next();
-            out.print((language.equals("no") ? 0.0 : 1.0) + " ");
+            out.print((language.equals("no") ? 1 : 2) + " ");
     
             int YoE = in.nextInt();
-            out.print((YoE == 0 ? 0.0 : YoE == 1 ? 0.5 : 1.0) + " ");
+            out.print((YoE == 0 ? 1 : YoE == 1 ? 2 : 3) + " ");
     
             String major = in.next();
-            out.print((major.equals("other") ? 0.0 : 1.0) + " ");
+            out.print((major.equals("other") ? 1 : 2) + " ");
     
             String grade = in.next();
-            out.print((grade.equals("A") ? 1.0 : grade.equals("B") ? 0.75 : grade.equals("C") ? 0.25 : 0.0) + " ");
+            out.print((grade.equals("A") ? 4 : grade.equals("B") ? 3 : grade.equals("C") ? 2 : 1) + " ");
     
             String interviewResult = in.next();
-            out.println((interviewResult.equals("interview") ? 1 : 0));
+            out.println((interviewResult.equals("interview") ? 2 : 1));
         }
     
         in.close();
@@ -100,20 +101,20 @@ public class BayesTester
         out.println();
     
         for (int i = 0; i < numberOfRecords; i++) {
-            int experience = in.nextInt();
-            out.print((experience == 0 ? 0.0 : experience == 1 ? 0.5 : 1.0) + " ");
+            int numOfLang = in.nextInt();
+            out.print((numOfLang == 0 ? 1 : numOfLang == 1 ? 2 : 3) + " ");
     
             String language = in.next();
-            out.print((language.equals("no") ? 0.0 : 1.0) + " ");
+            out.print((language.equals("no") ? 1 : 2) + " ");
     
             int YoE = in.nextInt();
-            out.print((YoE == 0 ? 0.0 : YoE == 1 ? 0.5 : 1.0) + " ");
+            out.print((YoE == 0 ? 1 : YoE == 1 ? 2 : 3) + " ");
     
             String major = in.next();
-            out.print((major.equals("other") ? 0.0 : 1.0) + " ");
+            out.print((major.equals("other") ? 1 : 2) + " ");
     
             String grade = in.next();
-            out.println((grade.equals("A") ? 1.0 : grade.equals("B") ? 0.75 : grade.equals("C") ? 0.25 : 0.0) + " ");
+            out.println((grade.equals("A") ? 4 : grade.equals("B") ? 3 : grade.equals("C") ? 2 : 1) + " ");
     
         }
     
@@ -131,7 +132,7 @@ public class BayesTester
 
         for (int i = 0; i < numberOfRecords; i++) {
             int classValue = in.nextInt();
-            String className = classValue == 1 ? "interview" : "no";
+            String className = classValue == 2 ? "interview" : "no";
             out.println(className);
         }
 

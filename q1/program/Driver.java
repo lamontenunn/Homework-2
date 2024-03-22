@@ -1,10 +1,11 @@
+package program;
 
 /**
  * Nearest Neighbor Classifier for Loan Applicant Classification
  * 
  * This program classifies loan applicants into risk categories (high risk, medium risk, low risk, 
  * and undetermined) based on their attributes such as credit score, income, age, sex, and marital status. 
- * It uses the k-Nearest Neighbors (k-NN) algorithm for classification and includes functionality for 
+ * It uses the k-Nearest Neighbors algorithm for classification and includes functionality for 
  * normalizing the input data, performing leave-one-out cross-validation to estimate model performance, 
  * and classifying new data.
  * 
@@ -53,7 +54,7 @@ public class Driver {
         System.out.print("Enter name of test data file name: ");
         String testData = scanner.next();
 
-        // Then
+
         System.out.print("Enter name of classified data output file name: ");
         String classifedOutput = scanner.next();
 
@@ -86,7 +87,7 @@ public class Driver {
         for (int i = 0; i < numberOfRecords; i++) {
 
             int risk = 0;
-            double[] sexMaritalClassArr = new double[2];
+            double[] sexMaritalArr = new double[2];
 
             // credit score
             int creditScore = in.nextInt();
@@ -107,18 +108,18 @@ public class Driver {
 
             String sex = in.next();
             if (sex.equals("male"))
-                sexMaritalClassArr[0] = 0.0;
+                sexMaritalArr[0] = 0.0;
             else
-                sexMaritalClassArr[0] = 1.0;
+                sexMaritalArr[0] = 1.0;
 
             // marital status
             String maritalStatus = in.next();
             if (maritalStatus.equals("single"))
-                sexMaritalClassArr[1] = 0.0;
+                sexMaritalArr[1] = 0.0;
             else if (maritalStatus.equals("married"))
-                sexMaritalClassArr[1] = 0.5;
+                sexMaritalArr[1] = 0.5;
             else if (maritalStatus.equals("divorced"))
-                sexMaritalClassArr[1] = 1.0;
+                sexMaritalArr[1] = 1.0;
 
             // class
             String riskClass = in.next();
@@ -131,7 +132,7 @@ public class Driver {
             else if (riskClass.equals("undetermined"))
                 risk = 3;
 
-            for (double num : sexMaritalClassArr)
+            for (double num : sexMaritalArr)
                 out.print(num + " ");
 
             out.print(risk);
@@ -155,7 +156,7 @@ public class Driver {
         output.println();
 
         for (int i = 0; i < numberOfRecords; i++) {
-            double[] sexMaritalClassArr = new double[2];
+            double[] sexMaritalArr = new double[2];
 
             // credit score
             int creditScore = in.nextInt();
@@ -176,20 +177,20 @@ public class Driver {
 
             String sex = in.next();
             if (sex.equals("male"))
-                sexMaritalClassArr[0] = 0;
+                sexMaritalArr[0] = 0;
             else
-                sexMaritalClassArr[0] = 1;
+                sexMaritalArr[0] = 1;
 
             // marital status
             String maritalStatus = in.next();
             if (maritalStatus.equals("single"))
-                sexMaritalClassArr[1] = 0.0;
+                sexMaritalArr[1] = 0.0;
             else if (maritalStatus.equals("married"))
-                sexMaritalClassArr[1] = 0.5;
+                sexMaritalArr[1] = 0.5;
             else if (maritalStatus.equals("divorced"))
-                sexMaritalClassArr[1] = 1.0;
+                sexMaritalArr[1] = 1.0;
 
-            for (double num : sexMaritalClassArr)
+            for (double num : sexMaritalArr)
                 output.print(num + " ");
 
             output.println();

@@ -1,3 +1,4 @@
+package program;
 import java.io.*;
 import java.util.*;
 
@@ -20,10 +21,10 @@ public class Bayes {
     /*************************************************************************/
 
     private int numberRecords; // number of records
-    private int numberAttributes; // number of attributes
+    private int numberOfAttributes; // number of attributes
     private int numberClasses; // number of classes
     private ArrayList<Record> records; // list of records
-    private int[] attributeValues; // number of attribute values
+    private int[] numOfEachAttributeArray; // number of attribute values
     double[][][] table; // conditional probabilities
     double[] classTable; // class probabilities
 
@@ -33,10 +34,10 @@ public class Bayes {
     public Bayes() {
         // initial data is empty
         numberRecords = 0;
-        numberAttributes = 0;
+        numberOfAttributes = 0;
         numberClasses = 0;
         records = null;
-        attributeValues = null;
+        numOfEachAttributeArray = null;
         table = null;
         classTable = null;
     }
@@ -45,21 +46,21 @@ public class Bayes {
 
     // Method loads data from training file
    // Method loads data from training file
-public void loadTrainingData(String trainingFile) throws IOException {
+    public void loadTrainingData(String trainingFile) throws IOException {
     Scanner inFile = new Scanner(new File(trainingFile));
 
     // read number of records, attributes, classes
     numberRecords = inFile.nextInt();
-    numberAttributes = inFile.nextInt();
+    numberOfAttributes = inFile.nextInt();
     numberClasses = inFile.nextInt();
 
     // read number of attribute values
-    attributeValues = new int[numberAttributes];
-    attributeValues[0] = 3; // experience (0.0, 0.5, 1.0)
-    attributeValues[1] = 2; // language (0.0, 1.0)
-    attributeValues[2] = 3; // YoE (0.0, 0.5, 1.0)
-    attributeValues[3] = 2; // major (0.0, 1.0)
-    attributeValues[4] = 4; // grade (0.0, 0.25, 0.75, 1.0)
+    numOfEachAttributeArray = new int[numberOfAttributes];
+    numOfEachAttributeArray[0] = 3; // experience (0.0, 0.5, 1.0)
+    numOfEachAttributeArray[1] = 2; // language (0.0, 1.0)
+    numOfEachAttributeArray[2] = 3; // YoE (0.0, 0.5, 1.0)
+    numOfEachAttributeArray[3] = 2; // major (0.0, 1.0)
+    numOfEachAttributeArray[4] = 4; // grade (0.0, 0.25, 0.75, 1.0)
 
     // list of records
     records = new ArrayList<Record>();
@@ -67,24 +68,24 @@ public void loadTrainingData(String trainingFile) throws IOException {
     // read each record
     for (int i = 0; i < numberRecords; i++) {
         // create attribute array
-        int[] attributeArray = new int[numberAttributes];
+        int[] attributeArray = new int[numberOfAttributes];
 
         // read attributes
-        double experience = inFile.nextDouble();
-        attributeArray[0] = experience == 0.0 ? 1 : (experience == 0.5 ? 2 : 3);
+        int experience = inFile.nextInt();
+        attributeArray[0] = experience;
 
-        double language = inFile.nextDouble();
-        attributeArray[1] = language == 0.0 ? 1 : 2;
+        int language = inFile.nextInt();
+        attributeArray[1] = language;
 
-        double YoE = inFile.nextDouble();
-        attributeArray[2] = YoE == 0.0 ? 1 : (YoE == 0.5 ? 2 : 3);
+        int YoE = inFile.nextInt();
+        attributeArray[2] = YoE;
 
-        double major = inFile.nextDouble();
-        attributeArray[3] = major == 0.0 ? 1 : 2;
+        int major = inFile.nextInt();
+        attributeArray[3] = major;
 
-        double grade = inFile.nextDouble();
-        attributeArray[4] = grade == 0.0 ? 1 : (grade == 0.25 ? 2 : (grade == 0.75 ? 3 : 4));
-
+        int grade = inFile.nextInt();
+        attributeArray[4] = grade;
+        
         // read class
         int className = inFile.nextInt();
 
@@ -137,10 +138,10 @@ public void loadTrainingData(String trainingFile) throws IOException {
     // Method computes conditional probabilities
     private void computeTable() {
         // array to store conditional probabilites
-        table = new double[numberAttributes][][];
+        table = new double[numberOfAttributes][][];
 
         // compute conditional probabilities of each attribute
-        for (int i = 0; i < numberAttributes; i++)
+        for (int i = 0; i < numberOfAttributes; i++)
             compute(i + 1);
     }
 
@@ -149,14 +150,14 @@ public void loadTrainingData(String trainingFile) throws IOException {
     // Method computes conditional probabilities of an attribute
     private void compute(int attribute) {
         // find number of attribute values
-        int attributeValues = this.attributeValues[attribute - 1];
+        int numOfEachAttributeArray = this.numOfEachAttributeArray[attribute - 1];
 
         // create array to hold conditional probabilities
-        table[attribute - 1] = new double[numberClasses][attributeValues];
+        table[attribute - 1] = new double[numberClasses][numOfEachAttributeArray];
 
         // initialize conditional probabilities
         for (int i = 0; i < numberClasses; i++)
-            for (int j = 0; j < attributeValues; j++)
+            for (int j = 0; j < numOfEachAttributeArray; j++)
                 table[attribute - 1][i][j] = 0;
 
         // compute class-attribute frequencies
@@ -169,11 +170,11 @@ public void loadTrainingData(String trainingFile) throws IOException {
         // compute conditional probabilities using laplace correction
 
         for (int i = 0; i < numberClasses; i++)
-            for (int j = 0; j < attributeValues; j++) {
+            for (int j = 0; j < numOfEachAttributeArray; j++) {
 
                 // i == current class being considered
                 // j == current attribute being considered
-                double value = (table[attribute - 1][i][j] + 1) / (classTable[i] * numberRecords + attributeValues);
+                double value = (table[attribute - 1][i][j] + 1) / (classTable[i] * numberRecords + numOfEachAttributeArray);
 
                 // classTable [i] represents the probibility of the current class | i is the
                 // current class (we have 4 total so were gonna loop through 4 times)
@@ -189,7 +190,7 @@ public void loadTrainingData(String trainingFile) throws IOException {
         double product = 1;
 
         // find product of conditional probabilities stored in table
-        for (int i = 0; i < numberAttributes; i++) {
+        for (int i = 0; i < numberOfAttributes; i++) {
             value = table[i][className - 1][attributes[i] - 1];
             product = product * value;
         }
@@ -225,39 +226,42 @@ public void loadTrainingData(String trainingFile) throws IOException {
 
     // Method reads test records from test file and writes classified records
     // to classified file
-    public void classifyData(String testFile, String classifiedFile)
-            throws IOException {
-        Scanner inFile = new Scanner(new File(testFile));
-        PrintWriter outFile = new PrintWriter(new FileWriter(classifiedFile));
+    public void classifyData(String testFile, String classifiedFile) 
+    throws IOException
+    {
+         Scanner inFile = new Scanner(new File(testFile));
+         PrintWriter outFile = new PrintWriter(new FileWriter(classifiedFile));
 
-        // read number of records
-        int numberRecords = inFile.nextInt();
+         //read number of records
+         int numberRecords = inFile.nextInt();
 
-        // write number of records
-        outFile.println(numberRecords);
+         //write number of records
+         outFile.println(numberRecords);
 
-        // for each record
-        for (int i = 0; i < numberRecords; i++) {
-            // create attribute array
-            int[] attributeArray = new int[numberAttributes];
+         //for each record
+         for (int i = 0; i < numberRecords; i++)
+         {
+             //create attribute array
+             int[] attributeArray = new int[numberOfAttributes];
 
-            // read attributes
-            attributeArray[0] = (int) (inFile.nextDouble() * 2) + 1; // experience
-            attributeArray[1] = inFile.nextDouble() == 0.0 ? 1 : 2; // language
-            attributeArray[2] = (int) (inFile.nextDouble() * 2) + 1; // YoE
-            attributeArray[3] = inFile.nextDouble() == 0.0 ? 1 : 2; // major
-            attributeArray[4] = (int) (inFile.nextDouble() * 4) + 1; // grade
+             //read attributes
+             for (int j = 0; j < numberOfAttributes; j++)
+                  attributeArray[j] = inFile.nextInt();
 
-            // find class of attributes
-            int className = classify(attributeArray);
+             //find class of attributes
+             int className = classify(attributeArray);
 
-            // write class name
-            outFile.println(className == 1 ? "interview" : "no");
-        }
+             //write class name
+             outFile.println(className);
+         }
 
-        inFile.close();
-        outFile.close();
+         inFile.close();
+         outFile.close();
     }
+
+
+
+
 
     /*************************************************************************/
 
@@ -270,7 +274,7 @@ public void loadTrainingData(String trainingFile) throws IOException {
             // Remove the current record from the training set
             Record removedRecord = records.remove(i);
     
-            // Train the Bayes classifier using the remaining records
+            // re-train the Bayes classifier
             computeProbability();
     
             // Classify the removed record using the trained classifier
